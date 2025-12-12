@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-sm">
+        <div class="container mx-auto p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-microchip text-blue-500 text-2xl"></i>
+                <h1 class="text-xl font-bold">CircuitFix</h1>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">PRO</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600">Welcome, {{ username }}</span>
+                <a href="/logout" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mx-auto mt-8 p-4">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-blue-600" id="todayCount">0</div>
+                <div class="text-gray-600">Today's Analyses</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-green-600" id="successRate">0%</div>
+                <div class="text-gray-600">Success Rate</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-purple-600" id="defectsFound">0</div>
+                <div class="text-gray-600">Defects Found</div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-yellow-600" id="avgTime">0s</div>
+                <div class="text-gray-600">Avg. Time</div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Upload Card -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-upload text-blue-500"></i> Upload PCB for Analysis
+                </h2>
+                
+                <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center mb-4">
+                    <i class="fas fa-microchip text-4xl text-blue-400 mb-4"></i>
+                    <p class="text-gray-600 mb-4">Upload a clear image of your PCB</p>
+                    <input type="file" id="pcbUpload" accept="image/*" class="hidden">
+                    <button onclick="document.getElementById('pcbUpload').click()" 
+                            class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-folder-open"></i> Choose Image
+                    </button>
+                </div>
+                
+                <button onclick="analyzePCB()" id="analyzeBtn" 
+                        class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 disabled:bg-gray-400"
+                        disabled>
+                    <i class="fas fa-robot"></i> Analyze with AI
+                </button>
+                
+                <div id="uploadStatus" class="mt-4"></div>
+            </div>
+            
+            <!-- Results -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-chart-bar text-purple-500"></i> Analysis Results
+                </h2>
+                <div id="results"></div>
+            </div>
+        </div>
+        
+        <!-- History -->
+        <div class="bg-white p-6 rounded-lg shadow mt-8">
+            <h2 class="text-xl font-semibold mb-4">
+                <i class="fas fa-history text-gray-500"></i> Recent Analyses
+            </h2>
+            <div id="history">
+                {% for analysis in history %}
+                <div class="border-l-4 border-blue-500 bg-blue-50 p-4 mb-2">
+                    <div class="flex justify-between">
+                        <span class="font-medium">Analysis #{{ analysis[0] }}</span>
+                        <span class="text-sm text-gray-600">{{ analysis[3] }}</span>
+                    </div>
+                    <div class="text-sm text-gray-600">Image: {{ analysis[1] }}</div>
+                    <a href="/report/{{ analysis[0] }}" class="text-blue-500 text-sm hover:underline">
+                        <i class="fas fa-download"></i> Download Report
+                    </a>
+                </div>
+                {% else %}
+                <p class="text-gray-500">No analyses yet. Upload your first PCB!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.getElementById('pcbUpload').addEventListener('change', function() {
+        if (this.files.length > 0) {
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('uploadStatus').innerHTML = 
+                '<div class="bg-green-50 text-green-700 p-3 rounded">File selected: ' + this.files[0].name + '</div>';
+        }
+    });
+
+    function analyzePCB() {
+        const fileInput = document.getElementById('pcbUpload');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Please select a PCB image first!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Show loading
+        document.getElementById('results').innerHTML = `
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="flex items-center">
+                    <i class="fas fa-spinner fa-spin text-yellow-500 mr-3"></i>
+                    <div>
+                        <h4 class="font-semibold">Analyzing PCB Image...</h4>
+                        <p class="text-sm text-yellow-700">Running YOLOv8 defect detection model</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        fetch('/analyze', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayResults(data);
+                updateStats();
+                location.reload(); // Refresh to show new history
+            } else {
+                document.getElementById('results').innerHTML = `
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4">
+                        <h4 class="font-semibold">Analysis Failed</h4>
+                        <p class="text-red-700">${data.error}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            document.getElementById('results').innerHTML = `
+                <div class="bg-red-50 border-l-4 border-red-400 p-4">
+                    <h4 class="font-semibold">Error</h4>
+                    <p class="text-red-700">Failed to analyze image: ${error}</p>
+                </div>
+            `;
+        });
+    }
+
+    function displayResults(data) {
+        let resultsHTML = `
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                <h4 class="font-semibold text-green-800">
+                    <i class="fas fa-check-circle"></i> Analysis Complete
+                </h4>
+                <p class="text-green-700">Found ${data.detections.length} defect(s)</p>
+            </div>
+            
+            <div class="mb-4">
+                <img src="${data.image_url}" class="w-full rounded-lg shadow" id="analyzedImage">
+            </div>
+        `;
+
+        if (data.detections.length > 0) {
+            resultsHTML += `<h5 class="font-semibold mb-3">Detected Defects:</h5>`;
+            
+            data.detections.forEach((detection, index) => {
+                const advice = detection.repair_advice;
+                resultsHTML += `
+                    <div class="border-l-4 ${getSeverityColor(advice.severity)} bg-gray-50 p-4 mb-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h6 class="font-semibold">${index + 1}. ${advice.name || detection.defect}</h6>
+                                <p class="text-sm text-gray-600">Confidence: ${(detection.confidence * 100).toFixed(1)}%</p>
+                                <p class="text-sm"><strong>Severity:</strong> ${advice.severity || 'Unknown'}</p>
+                            </div>
+                            <span class="bg-${getSeverityBgColor(advice.severity)} text-white text-xs px-2 py-1 rounded">
+                                ${advice.severity || 'UNKNOWN'}
+                            </span>
+                        </div>
+                        
+             
+                    </div>
+                `;
+            });
+        } else {
+            resultsHTML += `
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                    <p class="text-blue-700">No defects detected! PCB appears to be in good condition.</p>
+                </div>
+            `;
+        }
+
+        // Add report download button
+        resultsHTML += `
+            <div class="mt-4">
+                <a href="/report/${data.analysis_id}" 
+                   class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                    <i class="fas fa-download"></i> Download PDF Report
+                </a>
+            </div>
+        `;
+
+        document.getElementById('results').innerHTML = resultsHTML;
+    }
+
+    function getSeverityColor(severity) {
+        const colors = {
+            'Critical': 'border-red-500',
+            'High': 'border-orange-500', 
+            'Medium': 'border-yellow-500',
+            'Low': 'border-green-500'
+        };
+        return colors[severity] || 'border-gray-500';
+    }
+
+    function getSeverityBgColor(severity) {
+        const colors = {
+            'Critical': 'red',
+            'High': 'orange',
+            'Medium': 'yellow',
+            'Low': 'green'
+        };
+        return colors[severity] || 'gray';
+    }
+
+    function updateStats() {
+        // Simulate stats update
+        document.getElementById('todayCount').textContent = 
+            parseInt(document.getElementById('todayCount').textContent) + 1;
+    }
+
+    // Initialize stats
+    document.getElementById('todayCount').textContent = '{{ history|length }}';
+    </script>
+</body>
+</html>

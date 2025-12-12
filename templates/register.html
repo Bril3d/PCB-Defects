@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Technician Account | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .premium-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .input-glow:focus { box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2); border-color: #fbbf24; }
+        .password-strength-weak { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); }
+        .password-strength-medium { background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%); }
+        .password-strength-strong { background: linear-gradient(90deg, #10b981 0%, #34d399 100%); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute top-3/4 left-1/3 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="container max-w-md mx-auto relative">
+        <!-- Header Branding -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center items-center mb-6">
+                <div class="premium-gold p-3 rounded-xl mr-3">
+                    <i class="fas fa-microchip text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                    <p class="text-xs text-gray-400 tracking-wider">TECHNICIAN ONBOARDING</p>
+                </div>
+            </div>
+            <p class="text-gray-300 mb-2">Join the Industrial PCB Repair Platform</p>
+            <div class="inline-flex items-center text-sm text-blue-300 bg-blue-500/10 px-3 py-1 rounded-full">
+                <i class="fas fa-rocket mr-2"></i>
+                30-Day Enterprise Trial • Full Access
+            </div>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="glass-effect rounded-2xl p-8 hover-lift">
+            <h2 class="text-2xl font-bold text-white mb-2 text-center">
+                <i class="fas fa-user-plus mr-2 text-amber-400"></i>Create Technician Account
+            </h2>
+            <p class="text-gray-400 text-center mb-8">Register for access to advanced PCB repair tools</p>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/register" class="space-y-6">
+                <!-- Username Field -->
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-id-badge mr-2 text-amber-400"></i>Technician Username
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                        <input type="text" name="username" required 
+                               class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-amber-500 input-glow transition-colors"
+                               placeholder="Choose your technician ID"
+                               oninput="checkUsernameAvailability()"
+                               id="usernameInput">
+                        <div id="usernameCheck" class="absolute right-3 top-3 text-sm hidden">
+                            <i class="fas fa-spinner fa-spin text-amber-400" id="usernameSpinner"></i>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1 ml-1">
+                        <i class="fas fa-info-circle mr-1"></i>4-20 characters, letters and numbers only
+                    </div>
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-envelope mr-2 text-amber-400"></i>Enterprise Email
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-at text-gray-500"></i>
+                        </div>
+                        <input type="email" name="email" required 
+                               class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-amber-500 input-glow transition-colors"
+                               placeholder="company@enterprise.com">
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1 ml-1">
+                        <i class="fas fa-shield-alt mr-1"></i>Your email is protected by enterprise encryption
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-key mr-2 text-amber-400"></i>Secure Password
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-500"></i>
+                        </div>
+                        <input type="password" name="password" required 
+                               class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-amber-500 input-glow transition-colors"
+                               placeholder="Minimum 8 characters"
+                               oninput="checkPasswordStrength()"
+                               id="passwordInput">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button type="button" onclick="togglePassword('passwordInput')" class="text-gray-500 hover:text-amber-400">
+                                <i class="fas fa-eye" id="passwordEyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Password Strength Meter -->
+                    <div class="mt-2">
+                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                            <span>Password Strength:</span>
+                            <span id="passwordStrengthText">Weak</span>
+                        </div>
+                        <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                            <div id="passwordStrengthBar" class="h-full password-strength-weak" style="width: 20%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1 ml-1">
+                            <i class="fas fa-check-circle text-emerald-400 mr-1"></i>
+                            <span id="passwordRequirements">Include uppercase, lowercase, number, and special character</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-key mr-2 text-blue-400"></i>Confirm Password
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-500"></i>
+                        </div>
+                        <input type="password" name="confirm_password" required 
+                               class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-amber-500 input-glow transition-colors"
+                               placeholder="Re-enter your password"
+                               oninput="checkPasswordMatch()"
+                               id="confirmPasswordInput">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button type="button" onclick="togglePassword('confirmPasswordInput')" class="text-gray-500 hover:text-amber-400">
+                                <i class="fas fa-eye" id="confirmPasswordEyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="passwordMatch" class="text-xs mt-1 ml-1 hidden">
+                        <i class="fas fa-check-circle text-emerald-400 mr-1"></i>
+                        Passwords match
+                    </div>
+                </div>
+
+                <!-- Terms Agreement -->
+                <div class="bg-gray-800/30 rounded-xl p-4">
+                    <div class="flex items-start">
+                        <input type="checkbox" id="terms" name="terms" required 
+                               class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-700 rounded bg-gray-800 mt-1">
+                        <label for="terms" class="ml-3 text-sm text-gray-300">
+                            I agree to the 
+                            <a href="#" class="text-amber-400 hover:text-amber-300">Terms of Service</a>, 
+                            <a href="#" class="text-amber-400 hover:text-amber-300">Privacy Policy</a>, 
+                            and acknowledge that CircuitFix is an enterprise platform for professional PCB repair.
+                            <br><span class="text-xs text-gray-500 mt-1 block">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                By registering, you confirm you are an authorized technician.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full premium-gold text-white font-semibold py-3 rounded-xl hover-lift transition-all duration-300 flex items-center justify-center group"
+                        id="registerButton">
+                    <i class="fas fa-user-plus mr-2 group-hover:scale-110 transition-transform"></i>
+                    Create Technician Account
+                </button>
+
+                <!-- Enterprise Features List -->
+                <div class="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/20 rounded-xl p-4">
+                    <p class="text-sm font-medium text-blue-300 mb-2">
+                        <i class="fas fa-crown mr-2"></i>Enterprise Account Includes:
+                    </p>
+                    <ul class="text-xs text-gray-300 space-y-1">
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>Unlimited PCB Analysis</li>
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>Advanced YOLOv8 AI Detection</li>
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>PDF Report Generation</li>
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>Defect History & Analytics</li>
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>Priority Technical Support</li>
+                    </ul>
+                </div>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center my-8">
+                <div class="flex-grow border-t border-gray-700"></div>
+                <span class="flex-shrink mx-4 text-gray-500 text-sm">ALREADY REGISTERED?</span>
+                <div class="flex-grow border-t border-gray-700"></div>
+            </div>
+
+            <!-- Login CTA -->
+            <div class="text-center">
+                <a href="/login" 
+                   class="inline-flex items-center justify-center w-full border border-gray-600 text-gray-300 hover:bg-gray-800/50 px-6 py-3 rounded-xl font-medium hover-lift transition-colors">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Access Existing Account
+                </a>
+            </div>
+        </div>
+
+        <!-- Security Badges -->
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-lock text-emerald-400 mr-1"></i> End-to-End Encryption
+            </div>
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-database text-blue-400 mr-1"></i> GDPR Compliant
+            </div>
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-shield-alt text-amber-400 mr-1"></i> Enterprise Security
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center mt-8 text-gray-600 text-sm">
+            <p>© 2024 CircuitFix Industries. Enterprise Edition v2.1.0</p>
+            <p class="text-xs mt-1">Restricted to authorized technicians only</p>
+        </div>
+    </div>
+
+    <script>
+        // Password toggle function
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(inputId + 'EyeIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Password strength checker
+        function checkPasswordStrength() {
+            const password = document.getElementById('passwordInput').value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+            const requirements = document.getElementById('passwordRequirements');
+            
+            let strength = 0;
+            let feedback = [];
+            
+            // Check length
+            if (password.length >= 8) strength += 25;
+            if (password.length >= 12) strength += 10;
+            
+            // Check character types
+            if (/[A-Z]/.test(password)) strength += 20;
+            if (/[a-z]/.test(password)) strength += 20;
+            if (/[0-9]/.test(password)) strength += 20;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            // Update strength bar
+            strength = Math.min(strength, 100);
+            strengthBar.style.width = strength + '%';
+            
+            // Update text and color
+            if (strength < 40) {
+                strengthBar.className = 'h-full password-strength-weak';
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'text-red-400';
+            } else if (strength < 70) {
+                strengthBar.className = 'h-full password-strength-medium';
+                strengthText.textContent = 'Medium';
+                strengthText.className = 'text-amber-400';
+            } else {
+                strengthBar.className = 'h-full password-strength-strong';
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-emerald-400';
+            }
+            
+            // Update requirements feedback
+            const missing = [];
+            if (password.length < 8) missing.push('8+ characters');
+            if (!/[A-Z]/.test(password)) missing.push('uppercase letter');
+            if (!/[a-z]/.test(password)) missing.push('lowercase letter');
+            if (!/[0-9]/.test(password)) missing.push('number');
+            if (!/[^A-Za-z0-9]/.test(password)) missing.push('special character');
+            
+            if (missing.length === 0) {
+                requirements.innerHTML = '<i class="fas fa-check-circle text-emerald-400 mr-1"></i>All requirements met';
+            } else {
+                requirements.innerHTML = `<i class="fas fa-exclamation-circle text-amber-400 mr-1"></i>Needs: ${missing.join(', ')}`;
+            }
+            
+            checkPasswordMatch();
+        }
+
+        // Check password match
+        function checkPasswordMatch() {
+            const password = document.getElementById('passwordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+            const matchDiv = document.getElementById('passwordMatch');
+            
+            if (confirmPassword === '') {
+                matchDiv.classList.add('hidden');
+                return;
+            }
+            
+            if (password === confirmPassword && password !== '') {
+                matchDiv.classList.remove('hidden');
+                matchDiv.innerHTML = '<i class="fas fa-check-circle text-emerald-400 mr-1"></i>Passwords match';
+            } else {
+                matchDiv.classList.remove('hidden');
+                matchDiv.innerHTML = '<i class="fas fa-times-circle text-red-400 mr-1"></i>Passwords do not match';
+            }
+        }
+
+        // Simulate username availability check
+        function checkUsernameAvailability() {
+            const username = document.getElementById('usernameInput').value;
+            const checkDiv = document.getElementById('usernameCheck');
+            const spinner = document.getElementById('usernameSpinner');
+            
+            if (username.length < 3) {
+                checkDiv.classList.add('hidden');
+                return;
+            }
+            
+            checkDiv.classList.remove('hidden');
+            spinner.classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                spinner.classList.add('hidden');
+                // This would be a real API call in production
+                const isAvailable = Math.random() > 0.5;
+                if (isAvailable) {
+                    checkDiv.innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i>';
+                } else {
+                    checkDiv.innerHTML = '<i class="fas fa-times-circle text-red-400"></i>';
+                }
+            }, 500);
+        }
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('passwordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match. Please check and try again.');
+                return false;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long.');
+                return false;
+            }
+            
+            // Add loading state
+            const submitBtn = document.getElementById('registerButton');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>

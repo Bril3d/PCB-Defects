@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Portal | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .premium-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .input-glow:focus { box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2); border-color: #fbbf24; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="container max-w-md mx-auto relative">
+        <!-- Header Branding -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center items-center mb-6">
+                <div class="premium-gold p-3 rounded-xl mr-3">
+                    <i class="fas fa-microchip text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                    <p class="text-xs text-gray-400 tracking-wider">TECHNICIAN PORTAL</p>
+                </div>
+            </div>
+            <p class="text-gray-300 mb-2">Industrial-Grade PCB Repair Platform</p>
+            <div class="inline-flex items-center text-sm text-amber-300 bg-amber-500/10 px-3 py-1 rounded-full">
+                <i class="fas fa-shield-alt mr-2"></i>
+                Enterprise Security • Military-Grade Encryption
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="glass-effect rounded-2xl p-8 hover-lift">
+            <h2 class="text-2xl font-bold text-white mb-2 text-center">
+                <i class="fas fa-user-shield mr-2 text-amber-400"></i>Technician Authentication
+            </h2>
+            <p class="text-gray-400 text-center mb-8">Enter your credentials to access the repair platform</p>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/login" class="space-y-6">
+                <!-- Username Field -->
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-user mr-2 text-amber-400"></i>Username
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-id-card text-gray-500"></i>
+                        </div>
+                        <input type="text" name="username" required 
+                               class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-amber-500 input-glow transition-colors"
+                               placeholder="Enter your technician ID">
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">
+                        <i class="fas fa-key mr-2 text-amber-400"></i>Password
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-500"></i>
+                        </div>
+                        <input type="password" name="password" required 
+                               class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-amber-500 input-glow transition-colors"
+                               placeholder="Enter your secure password">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button type="button" onclick="togglePassword()" class="text-gray-500 hover:text-amber-400">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-700 rounded bg-gray-800">
+                        <label for="remember" class="ml-2 text-sm text-gray-400">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm text-amber-400 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-question-circle mr-1"></i>Forgot password?
+                    </a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full premium-gold text-white font-semibold py-3 rounded-xl hover-lift transition-all duration-300 flex items-center justify-center group">
+                    <i class="fas fa-sign-in-alt mr-2 group-hover:translate-x-1 transition-transform"></i>
+                    Access Technician Dashboard
+                </button>
+
+                <!-- Two-Factor Note -->
+                <div class="text-center text-xs text-gray-500 mt-4">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Two-factor authentication is enabled for enterprise accounts
+                </div>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center my-8">
+                <div class="flex-grow border-t border-gray-700"></div>
+                <span class="flex-shrink mx-4 text-gray-500 text-sm">OR</span>
+                <div class="flex-grow border-t border-gray-700"></div>
+            </div>
+
+            <!-- Registration CTA -->
+            <div class="text-center">
+                <p class="text-gray-400 mb-4">Don't have a technician account?</p>
+                <a href="/register" 
+                   class="inline-flex items-center justify-center w-full border border-amber-500/30 text-amber-300 hover:bg-amber-500/10 px-6 py-3 rounded-xl font-medium hover-lift transition-colors">
+                    <i class="fas fa-user-plus mr-2"></i>Request Enterprise Access
+                </a>
+                <p class="text-xs text-gray-500 mt-3">
+                    <i class="fas fa-envelope mr-1"></i>
+                    Contact admin for organization registration
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer Security Badges -->
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-check-circle text-emerald-400 mr-1"></i> HIPAA Compliant
+            </div>
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-check-circle text-emerald-400 mr-1"></i> GDPR Ready
+            </div>
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-check-circle text-emerald-400 mr-1"></i> SOC 2 Certified
+            </div>
+            <div class="flex items-center text-xs text-gray-500">
+                <i class="fas fa-server text-blue-400 mr-1"></i> 99.9% Uptime
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center mt-8 text-gray-600 text-sm">
+            <p>© 2024 CircuitFix Industries. Enterprise Edition v2.1.0</p>
+            <p class="text-xs mt-1">Unauthorized access is strictly prohibited</p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.querySelector('input[name="password"]');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Add form validation feedback
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const username = document.querySelector('input[name="username"]').value.trim();
+            const password = document.querySelector('input[name="password"]').value.trim();
+            
+            if (!username || !password) {
+                e.preventDefault();
+                alert('Please fill in all required fields');
+                return false;
+            }
+            
+            // Add loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Authenticating...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
