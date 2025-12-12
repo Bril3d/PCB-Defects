@@ -1,77 +1,190 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>CircuitFix - Professional PCB Repair</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet>
-</head>
-<body class="bg-gray-900 text-white">
-    <!-- Navigation -->
-    <nav class="bg-gray-800 p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-microchip text-blue-400 text-2xl"></i>
-                <span class="text-xl font-bold">CircuitFix</span>
-                <span class="bg-blue-500 text-xs px-2 py-1 rounded">v2.1.0</span>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CircuitFix | Industrial PCB Repair Platform</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            * { font-family: 'Inter', sans-serif; }
+            .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+            .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+            .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+            .premium-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+            .premium-emerald { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+            .hover-lift { transition: all 0.3s ease; }
+            .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        </style>
+    </head>
+    <body class="gradient-bg text-white min-h-screen">
+        <!-- Premium Navigation -->
+        <nav class="glass-effect border-b border-gray-700">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                            <p class="text-xs text-gray-400">INDUSTRIAL EDITION</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <a href="/dashboard" class="text-gray-300 hover:text-amber-200 transition-colors font-medium">Dashboard</a>
+                        <a href="/login" class="premium-gold text-white px-6 py-2 rounded-lg font-semibold hover-lift shadow-lg">
+                            <i class="fas fa-lock mr-2"></i>Technician Portal
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="space-x-4">
-                <a href="/dashboard" class="hover:text-blue-400">Dashboard</a>
-                <a href="/login" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">Technician Login</a>
-            </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Hero Section -->
-    <div class="container mx-auto mt-16 text-center">
-        <h1 class="text-5xl font-bold mb-4">Industrial-Grade PCB Repair Platform</h1>
-        <p class="text-xl text-gray-300 mb-8">AI-powered defect detection with enterprise workflow management</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div class="bg-gray-800 p-6 rounded-lg">
-                <i class="fas fa-robot text-3xl text-blue-400 mb-4"></i>
-                <h3 class="text-xl font-semibold mb-2">YOLOv8 AI Engine</h3>
-                <p class="text-gray-400">Real-time defect detection with 95%+ accuracy</p>
+        <!-- Premium Hero Section -->
+        <section class="relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent"></div>
+            <div class="container mx-auto px-6 py-24 relative">
+                <div class="text-center max-w-4xl mx-auto">
+                    <div class="inline-block premium-gold text-white px-6 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg">
+                        <i class="fas fa-bolt mr-2"></i>ENTERPRISE AI PLATFORM
+                    </div>
+                    <h1 class="text-6xl font-bold mb-6 leading-tight">
+                        Industrial-Grade
+                        <span class="bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">PCB Repair</span>
+                        Intelligence
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+                        Advanced AI-powered defect detection with enterprise-grade workflow automation. 
+                        Trusted by Fortune 500 manufacturers worldwide.
+                    </p>
+                    
+                    <div class="flex justify-center space-x-6">
+                        <a href="/register" class="premium-gold text-white px-8 py-4 rounded-xl font-semibold text-lg hover-lift shadow-2xl">
+                            <i class="fas fa-rocket mr-2"></i>Start Enterprise Trial
+                        </a>
+                        <a href="/login" class="glass-effect border border-amber-500/30 text-amber-200 px-8 py-4 rounded-xl font-semibold text-lg hover-lift">
+                            <i class="fas fa-user-shield mr-2"></i>Technician Login
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="bg-gray-800 p-6 rounded-lg">
-                <i class="fas fa-comments text-3xl text-green-400 mb-4"></i>
-                <h3 class="text-xl font-semibold mb-2">Technical Assistant</h3>
-                <p class="text-gray-400">Interactive repair guidance and Q&A</p>
-            </div>
-            <div class="bg-gray-800 p-6 rounded-lg">
-                <i class="fas fa-chart-line text-3xl text-purple-400 mb-4"></i>
-                <h3 class="text-xl font-semibold mb-2">Analytics Dashboard</h3>
-                <p class="text-gray-400">Performance metrics and repair analytics</p>
-            </div>
-        </div>
+        </section>
 
-        <div class="mt-12">
-            <a href="/register" class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700">
-                Start Free Trial
-            </a>
-            <p class="text-gray-400 mt-2">Professional PCB analysis platform</p>
-        </div>
-    </div>
+        <!-- Premium Features Grid -->
+        <section class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold mb-4">Enterprise-Grade <span class="text-amber-400">Capabilities</span></h2>
+                    <p class="text-gray-400 text-lg">Powered by cutting-edge AI and industrial automation</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="glass-effect rounded-2xl p-8 hover-lift group">
+                        <div class="premium-blue w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-robot text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">YOLOv8 AI Engine</h3>
+                        <p class="text-gray-400 mb-4">Real-time defect detection with 98.2% accuracy using advanced neural networks</p>
+                        <div class="flex items-center text-amber-400 text-sm font-medium">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-effect rounded-2xl p-8 hover-lift group">
+                        <div class="premium-emerald w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-chart-network text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">Smart Analytics</h3>
+                        <p class="text-gray-400 mb-4">Comprehensive performance metrics and predictive maintenance insights</p>
+                        <div class="flex items-center text-amber-400 text-sm font-medium">
+                            <span>View analytics</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-effect rounded-2xl p-8 hover-lift group">
+                        <div class="premium-gold w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-shield-alt text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">Enterprise Security</h3>
+                        <p class="text-gray-400 mb-4">Military-grade encryption and multi-layered security protocols</p>
+                        <div class="flex items-center text-amber-400 text-sm font-medium">
+                            <span>Security specs</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Stats -->
-    <div class="container mx-auto mt-20 text-center">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div>
-                <div class="text-3xl font-bold text-blue-400">15K+</div>
-                <div class="text-gray-400">PCBs Analyzed</div>
+        <!-- Premium Stats -->
+        <section class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="glass-effect rounded-3xl p-12">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                        <div>
+                            <div class="text-4xl font-bold text-amber-400 mb-2">15K+</div>
+                            <div class="text-gray-400 font-medium">PCBs Analyzed</div>
+                            <div class="text-amber-400 text-sm mt-1">Monthly Volume</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-emerald-400 mb-2">98.2%</div>
+                            <div class="text-gray-400 font-medium">Accuracy Rate</div>
+                            <div class="text-emerald-400 text-sm mt-1">Industry Leading</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-blue-400 mb-2">2.3s</div>
+                            <div class="text-gray-400 font-medium">Analysis Time</div>
+                            <div class="text-blue-400 text-sm mt-1">Real-time Processing</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-purple-400 mb-2">500+</div>
+                            <div class="text-gray-400 font-medium">Enterprise Clients</div>
+                            <div class="text-purple-400 text-sm mt-1">Global Reach</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <div class="text-3xl font-bold text-green-400">98.2%</div>
-                <div class="text-gray-400">Accuracy Rate</div>
+        </section>
+
+        <!-- Premium CTA -->
+        <section class="py-20">
+            <div class="container mx-auto px-6 text-center">
+                <div class="glass-effect rounded-3xl p-16 max-w-4xl mx-auto">
+                    <h2 class="text-4xl font-bold mb-6">Ready to Transform Your PCB Repair Workflow?</h2>
+                    <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                        Join industry leaders who trust CircuitFix for mission-critical PCB analysis and repair operations.
+                    </p>
+                    <div class="flex justify-center space-x-6">
+                        <a href="/register" class="premium-gold text-white px-10 py-5 rounded-xl font-semibold text-lg hover-lift shadow-2xl">
+                            <i class="fas fa-crown mr-2"></i>Start Enterprise Trial
+                        </a>
+                        <a href="/contact" class="glass-effect border border-gray-600 text-gray-300 px-10 py-5 rounded-xl font-semibold text-lg hover-lift">
+                            <i class="fas fa-headset mr-2"></i>Contact Sales
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div>
-                <div class="text-3xl font-bold text-purple-400">2.3s</div>
-                <div class="text-gray-400">Avg Analysis Time</div>
+        </section>
+
+        <!-- Premium Footer -->
+        <footer class="glass-effect border-t border-gray-700 py-12">
+            <div class="container mx-auto px-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white"></i>
+                        </div>
+                        <span class="text-lg font-semibold">CircuitFix</span>
+                    </div>
+                    <div class="text-gray-400 text-sm">
+                        © 2024 CircuitFix Industries. Enterprise Edition.
+                    </div>
+                </div>
             </div>
-            <div>
-                <div class="text-3xl font-bold text-yellow-400">500+</div>
-                <div class="text-gray-400">Enterprise Clients</div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+        </footer>
+    </body>
+    </html>
