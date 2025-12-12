@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis #{{ analysis.id }} | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .premium-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .premium-emerald { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+        .premium-purple { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+        .premium-red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .image-zoom { transition: transform 0.3s ease; cursor: zoom-in; }
+        .image-zoom:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <a href="/dashboard" class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                            <p class="text-xs text-gray-400">ANALYSIS DETAILS</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </a>
+                    <a href="/knowledge" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Knowledge Base
+                    </a>
+                    <a href="/analytics" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-chart-pie mr-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Analysis #{{ analysis.id }}</h1>
+                <p class="text-gray-400">
+                    <i class="fas fa-calendar mr-2"></i>{{ analysis.created_at }}
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="/report/{{ analysis.id }}" class="premium-gold text-white px-6 py-3 rounded-xl hover-lift flex items-center">
+                    <i class="fas fa-download mr-2"></i>Download PDF Report
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Image Section -->
+            <div class="card-glass rounded-2xl p-6">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-image text-blue-400 mr-3"></i>
+                    Annotated PCB Image
+                </h2>
+                <div class="rounded-xl overflow-hidden border border-gray-700">
+                    <img src="{{ annotated_image_url or image_url }}" 
+                         alt="PCB Analysis" 
+                         class="w-full image-zoom"
+                         onclick="openFullscreen(this)">
+                </div>
+                <p class="text-gray-500 text-sm mt-3 text-center">
+                    <i class="fas fa-search-plus mr-1"></i>Click image to enlarge
+                </p>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="space-y-6">
+                <!-- Defects Overview -->
+                <div class="card-glass rounded-2xl p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-clipboard-list text-purple-400 mr-3"></i>
+                        Defects Summary
+                    </h2>
+                    
+                    {% if detections %}
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-800/50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-amber-400">{{ detections|length }}</div>
+                            <div class="text-gray-400 text-sm">Total Defects</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-red-400">{{ critical_count }}</div>
+                            <div class="text-gray-400 text-sm">Critical Issues</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        {% for detection in detections %}
+                        <div class="glass-effect rounded-xl p-4 border-l-4 {{ 'border-red-500' if detection.repair_advice.severity == 'Critical' else 'border-orange-500' if detection.repair_advice.severity == 'High' else 'border-yellow-500' if detection.repair_advice.severity == 'Medium' else 'border-green-500' }}">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">{{ detection.repair_advice.name or detection.defect }}</span>
+                                <span class="text-xs px-2 py-1 rounded {{ 'bg-red-500/30 text-red-300' if detection.repair_advice.severity == 'Critical' else 'bg-orange-500/30 text-orange-300' if detection.repair_advice.severity == 'High' else 'bg-yellow-500/30 text-yellow-300' if detection.repair_advice.severity == 'Medium' else 'bg-green-500/30 text-green-300' }}">
+                                    {{ detection.repair_advice.severity }}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-400 mt-1">
+                                Confidence: {{ (detection.confidence * 100)|round(1) }}%
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-check-circle text-5xl text-emerald-400 mb-4"></i>
+                        <p class="text-emerald-300 text-lg">No defects detected!</p>
+                        <p class="text-gray-500">This PCB appears to be in good condition.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Repair Guides Section -->
+        {% if detections %}
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-tools text-amber-400 mr-3"></i>
+                Repair Guides
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for detection in detections %}
+                <div class="card-glass rounded-2xl p-6 hover-lift">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">{{ detection.repair_advice.name or detection.defect }}</h3>
+                            <p class="text-gray-400 text-sm">{{ detection.repair_advice.severity }} Severity</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <span class="bg-blue-500/20 text-blue-300 text-xs px-3 py-1 rounded-full">
+                                <i class="fas fa-clock mr-1"></i>{{ detection.repair_advice.time_estimate }}
+                            </span>
+                            <span class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full">
+                                <i class="fas fa-dollar-sign mr-1"></i>{{ detection.repair_advice.cost_estimate }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Tools Required -->
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-gray-300 mb-2">
+                            <i class="fas fa-wrench text-amber-400 mr-2"></i>Tools Required
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tool in detection.repair_advice.tools %}
+                            <span class="bg-gray-700/50 text-gray-300 text-xs px-2 py-1 rounded">{{ tool }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Repair Steps -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-300 mb-3">
+                            <i class="fas fa-list-ol text-blue-400 mr-2"></i>Repair Steps
+                        </h4>
+                        <ol class="space-y-2">
+                            {% for step in detection.repair_advice.steps %}
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-6 h-6 bg-blue-500/20 text-blue-300 rounded-full flex items-center justify-center text-xs mr-3 mt-0.5">{{ loop.index }}</span>
+                                <span class="text-gray-300 text-sm">{{ step }}</span>
+                            </li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Fullscreen Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4" onclick="closeFullscreen()">
+        <img id="modalImage" src="" class="max-w-full max-h-full rounded-xl">
+        <button class="absolute top-6 right-6 text-white text-2xl hover:text-amber-400">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <script>
+        function openFullscreen(img) {
+            document.getElementById('modalImage').src = img.src;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+        
+        function closeFullscreen() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeFullscreen();
+        });
+    </script>
+</body>
+</html>

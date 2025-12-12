@@ -1,111 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard - CircuitFix</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CircuitFix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .premium-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .premium-emerald { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+        .premium-purple { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <nav class="bg-white shadow-sm">
-        <div class="container mx-auto p-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-microchip text-blue-500 text-2xl"></i>
-                <h1 class="text-xl font-bold">CircuitFix</h1>
-                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">PRO</span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-600">Welcome, {{ username }}</span>
-                <a href="/logout" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Logout</a>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Premium Navigation -->
+    <nav class="glass-effect border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="premium-gold p-2 rounded-lg">
+                        <i class="fas fa-microchip text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                        <p class="text-xs text-gray-400">TECHNICIAN DASHBOARD</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-circle text-emerald-400 text-xs mr-2 animate-pulse"></i>
+                        AI Model Active
+                    </div>
+                    <a href="/knowledge" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-book mr-1"></i>Knowledge
+                    </a>
+                    <a href="/analytics" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-chart-pie mr-1"></i>Analytics
+                    </a>
+                    <a href="/profile" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-user-shield mr-1 text-amber-400"></i>{{ username }}
+                    </a>
+                    <a href="/logout" class="glass-effect border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
-    
-    <div class="container mx-auto mt-8 p-4">
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-blue-600" id="todayCount">0</div>
-                <div class="text-gray-600">Today's Analyses</div>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-xl mb-6 flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-emerald-400"></i>
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card-glass rounded-2xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="premium-blue w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Today</span>
+                </div>
+                <div class="text-3xl font-bold text-blue-400 mb-1" id="todayCount">-</div>
+                <div class="text-gray-400 text-sm">Analyses Today</div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-green-600" id="successRate">0%</div>
-                <div class="text-gray-600">Success Rate</div>
+            <div class="card-glass rounded-2xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="premium-emerald w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-check-double text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Quality</span>
+                </div>
+                <div class="text-3xl font-bold text-emerald-400 mb-1" id="successRate">-</div>
+                <div class="text-gray-400 text-sm">Success Rate</div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-purple-600" id="defectsFound">0</div>
-                <div class="text-gray-600">Defects Found</div>
+            <div class="card-glass rounded-2xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="premium-purple w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-bug text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Detected</span>
+                </div>
+                <div class="text-3xl font-bold text-purple-400 mb-1" id="defectsFound">-</div>
+                <div class="text-gray-400 text-sm">Defects Found</div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-yellow-600" id="avgTime">0s</div>
-                <div class="text-gray-600">Avg. Time</div>
+            <div class="card-glass rounded-2xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="premium-gold w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-bolt text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Speed</span>
+                </div>
+                <div class="text-3xl font-bold text-amber-400 mb-1" id="avgTime">-</div>
+                <div class="text-gray-400 text-sm">Avg. Analysis Time</div>
             </div>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Upload Card -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-xl font-semibold mb-4">
-                    <i class="fas fa-upload text-blue-500"></i> Upload PCB for Analysis
+            <div class="card-glass rounded-2xl p-8">
+                <h2 class="text-xl font-semibold mb-6 flex items-center">
+                    <div class="premium-blue w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-upload text-white"></i>
+                    </div>
+                    Upload PCB for Analysis
                 </h2>
                 
-                <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center mb-4">
-                    <i class="fas fa-microchip text-4xl text-blue-400 mb-4"></i>
-                    <p class="text-gray-600 mb-4">Upload a clear image of your PCB</p>
+                <div class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center mb-6 hover:border-amber-500/50 transition-colors cursor-pointer" onclick="document.getElementById('pcbUpload').click()">
+                    <i class="fas fa-microchip text-5xl text-gray-500 mb-4"></i>
+                    <p class="text-gray-400 mb-2">Drag & drop or click to upload</p>
+                    <p class="text-gray-500 text-sm">Supports PNG, JPG, JPEG</p>
                     <input type="file" id="pcbUpload" accept="image/*" class="hidden">
-                    <button onclick="document.getElementById('pcbUpload').click()" 
-                            class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-folder-open"></i> Choose Image
-                    </button>
                 </div>
                 
-                <button onclick="analyzePCB()" id="analyzeBtn" 
-                        class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 disabled:bg-gray-400"
-                        disabled>
-                    <i class="fas fa-robot"></i> Analyze with AI
-                </button>
+                <div id="uploadStatus" class="mb-4"></div>
                 
-                <div id="uploadStatus" class="mt-4"></div>
+                <button onclick="analyzePCB()" id="analyzeBtn" 
+                        class="w-full premium-gold text-white py-4 rounded-xl font-semibold hover-lift disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        disabled>
+                    <i class="fas fa-robot mr-2"></i>Analyze with YOLOv8 AI
+                </button>
             </div>
             
             <!-- Results -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-xl font-semibold mb-4">
-                    <i class="fas fa-chart-bar text-purple-500"></i> Analysis Results
+            <div class="card-glass rounded-2xl p-8">
+                <h2 class="text-xl font-semibold mb-6 flex items-center">
+                    <div class="premium-purple w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-chart-bar text-white"></i>
+                    </div>
+                    Analysis Results
                 </h2>
-                <div id="results"></div>
+                <div id="results" class="text-gray-400">
+                    <div class="text-center py-12">
+                        <i class="fas fa-microscope text-4xl text-gray-600 mb-4"></i>
+                        <p>Upload a PCB image to begin analysis</p>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- History -->
-        <div class="bg-white p-6 rounded-lg shadow mt-8">
-            <h2 class="text-xl font-semibold mb-4">
-                <i class="fas fa-history text-gray-500"></i> Recent Analyses
+        <div class="card-glass rounded-2xl p-8 mt-8">
+            <h2 class="text-xl font-semibold mb-6 flex items-center">
+                <div class="glass-effect w-10 h-10 rounded-lg flex items-center justify-center mr-3 border border-gray-600">
+                    <i class="fas fa-history text-gray-400"></i>
+                </div>
+                Recent Analyses
             </h2>
-            <div id="history">
+            <div id="history" class="space-y-3">
                 {% for analysis in history %}
-                <div class="border-l-4 border-blue-500 bg-blue-50 p-4 mb-2">
-                    <div class="flex justify-between">
-                        <span class="font-medium">Analysis #{{ analysis[0] }}</span>
-                        <span class="text-sm text-gray-600">{{ analysis[3] }}</span>
-                    </div>
-                    <div class="text-sm text-gray-600">Image: {{ analysis[1] }}</div>
-                    <a href="/report/{{ analysis[0] }}" class="text-blue-500 text-sm hover:underline">
-                        <i class="fas fa-download"></i> Download Report
+                <div class="glass-effect rounded-xl p-4 flex justify-between items-center hover:bg-white/5 transition-colors">
+                    <a href="/analysis/{{ analysis[0] }}" class="flex items-center space-x-4 flex-1">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <i class="fas fa-file-image text-blue-400"></i>
+                        </div>
+                        <div>
+                            <span class="font-medium text-white">Analysis #{{ analysis[0] }}</span>
+                            <div class="text-sm text-gray-500">{{ analysis[3] }}</div>
+                        </div>
                     </a>
+                    <div class="flex items-center space-x-3">
+                        <a href="/analysis/{{ analysis[0] }}" class="glass-effect border border-gray-600 text-gray-300 px-4 py-2 rounded-lg text-sm hover:bg-gray-700/50 transition-colors">
+                            <i class="fas fa-eye mr-1"></i>View
+                        </a>
+                        <a href="/report/{{ analysis[0] }}" class="premium-gold text-white px-4 py-2 rounded-lg text-sm hover-lift">
+                            <i class="fas fa-download mr-1"></i>PDF
+                        </a>
+                    </div>
                 </div>
                 {% else %}
-                <p class="text-gray-500">No analyses yet. Upload your first PCB!</p>
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-3"></i>
+                    <p>No analyses yet. Upload your first PCB!</p>
+                </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 
     <script>
+    // Load stats on page load
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('todayCount').textContent = data.today_count;
+            document.getElementById('successRate').textContent = data.success_rate + '%';
+            document.getElementById('defectsFound').textContent = data.defects_found;
+            document.getElementById('avgTime').textContent = data.avg_time;
+        })
+        .catch(error => {
+            console.error('Error loading stats:', error);
+        });
+
     document.getElementById('pcbUpload').addEventListener('change', function() {
         if (this.files.length > 0) {
             document.getElementById('analyzeBtn').disabled = false;
-            document.getElementById('uploadStatus').innerHTML = 
-                '<div class="bg-green-50 text-green-700 p-3 rounded">File selected: ' + this.files[0].name + '</div>';
+            document.getElementById('uploadStatus').innerHTML = `
+                <div class="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 p-3 rounded-xl flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    File selected: ${this.files[0].name}
+                </div>
+            `;
         }
     });
 
@@ -123,12 +233,12 @@
 
         // Show loading
         document.getElementById('results').innerHTML = `
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div class="bg-amber-500/20 border border-amber-500/30 p-6 rounded-xl">
                 <div class="flex items-center">
-                    <i class="fas fa-spinner fa-spin text-yellow-500 mr-3"></i>
+                    <i class="fas fa-spinner fa-spin text-amber-400 text-2xl mr-4"></i>
                     <div>
-                        <h4 class="font-semibold">Analyzing PCB Image...</h4>
-                        <p class="text-sm text-yellow-700">Running YOLOv8 defect detection model</p>
+                        <h4 class="font-semibold text-amber-300">Analyzing PCB Image...</h4>
+                        <p class="text-sm text-amber-200/70">Running YOLOv8 defect detection model</p>
                     </div>
                 </div>
             </div>
@@ -142,77 +252,80 @@
         .then(data => {
             if (data.success) {
                 displayResults(data);
-                updateStats();
-                location.reload(); // Refresh to show new history
+                // Refresh stats
+                fetch('/api/stats')
+                    .then(response => response.json())
+                    .then(stats => {
+                        document.getElementById('todayCount').textContent = stats.today_count;
+                        document.getElementById('defectsFound').textContent = stats.defects_found;
+                    });
             } else {
                 document.getElementById('results').innerHTML = `
-                    <div class="bg-red-50 border-l-4 border-red-400 p-4">
-                        <h4 class="font-semibold">Analysis Failed</h4>
-                        <p class="text-red-700">${data.error}</p>
+                    <div class="bg-red-500/20 border border-red-500/30 p-6 rounded-xl">
+                        <h4 class="font-semibold text-red-300"><i class="fas fa-exclamation-triangle mr-2"></i>Analysis Failed</h4>
+                        <p class="text-red-200/70">${data.error}</p>
                     </div>
                 `;
             }
         })
         .catch(error => {
             document.getElementById('results').innerHTML = `
-                <div class="bg-red-50 border-l-4 border-red-400 p-4">
-                    <h4 class="font-semibold">Error</h4>
-                    <p class="text-red-700">Failed to analyze image: ${error}</p>
+                <div class="bg-red-500/20 border border-red-500/30 p-6 rounded-xl">
+                    <h4 class="font-semibold text-red-300"><i class="fas fa-exclamation-triangle mr-2"></i>Error</h4>
+                    <p class="text-red-200/70">Failed to analyze image: ${error}</p>
                 </div>
             `;
         });
     }
 
     function displayResults(data) {
+        const imageUrl = data.annotated_image_url || data.image_url;
+        
         let resultsHTML = `
-            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
-                <h4 class="font-semibold text-green-800">
-                    <i class="fas fa-check-circle"></i> Analysis Complete
+            <div class="bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-xl mb-4">
+                <h4 class="font-semibold text-emerald-300">
+                    <i class="fas fa-check-circle mr-2"></i>Analysis Complete
                 </h4>
-                <p class="text-green-700">Found ${data.detections.length} defect(s)</p>
+                <p class="text-emerald-200/70">Found ${data.detections.length} defect(s)</p>
             </div>
             
-            <div class="mb-4">
-                <img src="${data.image_url}" class="w-full rounded-lg shadow" id="analyzedImage">
+            <div class="mb-4 rounded-xl overflow-hidden">
+                <img src="${imageUrl}" class="w-full rounded-xl border border-gray-700">
             </div>
         `;
 
         if (data.detections.length > 0) {
-            resultsHTML += `<h5 class="font-semibold mb-3">Detected Defects:</h5>`;
+            resultsHTML += `<h5 class="font-semibold mb-3 text-gray-300">Detected Defects:</h5>`;
             
             data.detections.forEach((detection, index) => {
                 const advice = detection.repair_advice;
                 resultsHTML += `
-                    <div class="border-l-4 ${getSeverityColor(advice.severity)} bg-gray-50 p-4 mb-3">
+                    <div class="glass-effect rounded-xl p-4 mb-3 border-l-4 ${getSeverityBorderColor(advice.severity)}">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h6 class="font-semibold">${index + 1}. ${advice.name || detection.defect}</h6>
-                                <p class="text-sm text-gray-600">Confidence: ${(detection.confidence * 100).toFixed(1)}%</p>
-                                <p class="text-sm"><strong>Severity:</strong> ${advice.severity || 'Unknown'}</p>
+                                <h6 class="font-semibold text-white">${index + 1}. ${advice.name || detection.defect}</h6>
+                                <p class="text-sm text-gray-400">Confidence: ${(detection.confidence * 100).toFixed(1)}%</p>
                             </div>
-                            <span class="bg-${getSeverityBgColor(advice.severity)} text-white text-xs px-2 py-1 rounded">
+                            <span class="text-xs px-2 py-1 rounded ${getSeverityBgClass(advice.severity)}">
                                 ${advice.severity || 'UNKNOWN'}
                             </span>
                         </div>
-                        
-             
                     </div>
                 `;
             });
         } else {
             resultsHTML += `
-                <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                    <p class="text-blue-700">No defects detected! PCB appears to be in good condition.</p>
+                <div class="bg-blue-500/20 border border-blue-500/30 p-4 rounded-xl">
+                    <p class="text-blue-300"><i class="fas fa-thumbs-up mr-2"></i>No defects detected! PCB appears to be in good condition.</p>
                 </div>
             `;
         }
 
-        // Add report download button
         resultsHTML += `
             <div class="mt-4">
                 <a href="/report/${data.analysis_id}" 
-                   class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-                    <i class="fas fa-download"></i> Download PDF Report
+                   class="inline-flex items-center premium-purple text-white px-6 py-3 rounded-xl hover-lift">
+                    <i class="fas fa-download mr-2"></i>Download PDF Report
                 </a>
             </div>
         `;
@@ -220,7 +333,7 @@
         document.getElementById('results').innerHTML = resultsHTML;
     }
 
-    function getSeverityColor(severity) {
+    function getSeverityBorderColor(severity) {
         const colors = {
             'Critical': 'border-red-500',
             'High': 'border-orange-500', 
@@ -230,24 +343,15 @@
         return colors[severity] || 'border-gray-500';
     }
 
-    function getSeverityBgColor(severity) {
-        const colors = {
-            'Critical': 'red',
-            'High': 'orange',
-            'Medium': 'yellow',
-            'Low': 'green'
+    function getSeverityBgClass(severity) {
+        const classes = {
+            'Critical': 'bg-red-500/30 text-red-300',
+            'High': 'bg-orange-500/30 text-orange-300',
+            'Medium': 'bg-yellow-500/30 text-yellow-300',
+            'Low': 'bg-green-500/30 text-green-300'
         };
-        return colors[severity] || 'gray';
+        return classes[severity] || 'bg-gray-500/30 text-gray-300';
     }
-
-    function updateStats() {
-        // Simulate stats update
-        document.getElementById('todayCount').textContent = 
-            parseInt(document.getElementById('todayCount').textContent) + 1;
-    }
-
-    // Initialize stats
-    document.getElementById('todayCount').textContent = '{{ history|length }}';
     </script>
 </body>
 </html>

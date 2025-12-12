@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .premium-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .premium-emerald { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+        .premium-purple { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <a href="/dashboard" class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                            <p class="text-xs text-gray-400">KNOWLEDGE BASE</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                    <a href="/analytics" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-chart-pie mr-2"></i>Analytics
+                    </a>
+                    <a href="/profile" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-user mr-2"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">
+                <i class="fas fa-book-open text-amber-400 mr-3"></i>
+                PCB Defect Knowledge Base
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                Comprehensive reference guide for all PCB defect types, repair procedures, and best practices
+            </p>
+        </div>
+
+        <!-- Search -->
+        <div class="max-w-xl mx-auto mb-12">
+            <div class="relative">
+                <input type="text" 
+                       id="searchInput"
+                       placeholder="Search defects, tools, or procedures..."
+                       class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-amber-500 transition-colors">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+            </div>
+        </div>
+
+        <!-- Defect Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="defectGrid">
+            {% for key, defect in defects.items() %}
+            <div class="card-glass rounded-2xl p-6 hover-lift defect-card" data-name="{{ defect.name }}" data-severity="{{ defect.severity }}">
+                <!-- Header -->
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-3 {{ 'bg-red-500/20' if defect.severity == 'Critical' else 'bg-orange-500/20' if defect.severity == 'High' else 'bg-yellow-500/20' if defect.severity == 'Medium' else 'bg-green-500/20' }}">
+                            <i class="fas fa-exclamation-triangle text-xl {{ 'text-red-400' if defect.severity == 'Critical' else 'text-orange-400' if defect.severity == 'High' else 'text-yellow-400' if defect.severity == 'Medium' else 'text-green-400' }}"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">{{ defect.name }}</h3>
+                            <span class="text-xs px-2 py-0.5 rounded {{ 'bg-red-500/30 text-red-300' if defect.severity == 'Critical' else 'bg-orange-500/30 text-orange-300' if defect.severity == 'High' else 'bg-yellow-500/30 text-yellow-300' if defect.severity == 'Medium' else 'bg-green-500/30 text-green-300' }}">
+                                {{ defect.severity }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estimates -->
+                <div class="flex space-x-3 mb-4">
+                    <span class="bg-blue-500/20 text-blue-300 text-xs px-3 py-1 rounded-full">
+                        <i class="fas fa-clock mr-1"></i>{{ defect.time_estimate }}
+                    </span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full">
+                        <i class="fas fa-dollar-sign mr-1"></i>{{ defect.cost_estimate }}
+                    </span>
+                </div>
+
+                <!-- Tools -->
+                <div class="mb-4">
+                    <h4 class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Required Tools</h4>
+                    <div class="flex flex-wrap gap-1">
+                        {% for tool in defect.tools %}
+                        <span class="bg-gray-700/50 text-gray-300 text-xs px-2 py-1 rounded">{{ tool }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Steps Preview -->
+                <div>
+                    <h4 class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Repair Steps</h4>
+                    <ol class="space-y-1 text-sm text-gray-400">
+                        {% for step in defect.steps[:3] %}
+                        <li class="flex items-start">
+                            <span class="text-amber-400 mr-2">{{ loop.index }}.</span>
+                            <span class="line-clamp-1">{{ step }}</span>
+                        </li>
+                        {% endfor %}
+                        {% if defect.steps|length > 3 %}
+                        <li class="text-amber-400 text-xs">+ {{ defect.steps|length - 3 }} more steps</li>
+                        {% endif %}
+                    </ol>
+                </div>
+
+                <!-- Expand Button -->
+                <button onclick="showDetails('{{ key }}')" class="w-full mt-4 glass-effect border border-gray-600 text-gray-300 py-2 rounded-lg hover:bg-gray-800/50 transition-colors text-sm">
+                    <i class="fas fa-expand mr-2"></i>View Full Guide
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="card-glass rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-start mb-6">
+                <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const defects = {{ defects | tojson }};
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.defect-card').forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const tools = card.textContent.toLowerCase();
+                if (name.includes(query) || tools.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        function showDetails(key) {
+            const defect = defects[key];
+            document.getElementById('modalTitle').textContent = defect.name;
+            
+            let html = `
+                <div class="space-y-6">
+                    <div class="flex space-x-3">
+                        <span class="bg-blue-500/20 text-blue-300 px-4 py-2 rounded-lg">
+                            <i class="fas fa-clock mr-2"></i>${defect.time_estimate}
+                        </span>
+                        <span class="bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-lg">
+                            <i class="fas fa-dollar-sign mr-2"></i>${defect.cost_estimate}
+                        </span>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-amber-400 mb-3"><i class="fas fa-wrench mr-2"></i>Required Tools</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${defect.tools.map(tool => `<span class="bg-gray-700 text-gray-200 px-3 py-1 rounded-lg">${tool}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-blue-400 mb-3"><i class="fas fa-list-ol mr-2"></i>Repair Procedure</h4>
+                        <ol class="space-y-3">
+                            ${defect.steps.map((step, i) => `
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 w-8 h-8 premium-gold rounded-full flex items-center justify-center text-sm font-bold mr-3">${i + 1}</span>
+                                    <span class="text-gray-300 pt-1">${step}</span>
+                                </li>
+                            `).join('')}
+                        </ol>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>

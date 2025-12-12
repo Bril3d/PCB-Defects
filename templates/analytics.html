@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-3px); }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <a href="/dashboard" class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                            <p class="text-xs text-gray-400">ANALYTICS</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                    <a href="/knowledge" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Knowledge Base
+                    </a>
+                    <a href="/profile" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-user mr-2"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">
+                <i class="fas fa-chart-pie text-amber-400 mr-3"></i>
+                Analytics Dashboard
+            </h1>
+            <p class="text-gray-400 text-lg">Insights into your PCB analysis patterns and defect trends</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card-glass rounded-2xl p-6 text-center hover-lift">
+                <div class="text-4xl font-bold text-blue-400 mb-2" id="totalAnalyses">-</div>
+                <div class="text-gray-400">Total Analyses</div>
+            </div>
+            <div class="card-glass rounded-2xl p-6 text-center hover-lift">
+                <div class="text-4xl font-bold text-purple-400 mb-2" id="totalDefects">-</div>
+                <div class="text-gray-400">Defects Found</div>
+            </div>
+            <div class="card-glass rounded-2xl p-6 text-center hover-lift">
+                <div class="text-4xl font-bold text-red-400 mb-2" id="criticalCount">-</div>
+                <div class="text-gray-400">Critical Issues</div>
+            </div>
+            <div class="card-glass rounded-2xl p-6 text-center hover-lift">
+                <div class="text-4xl font-bold text-amber-400 mb-2" id="mostCommon">-</div>
+                <div class="text-gray-400">Most Common</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Defect Frequency -->
+            <div class="card-glass rounded-2xl p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fas fa-chart-bar text-blue-400 mr-3"></i>
+                    Defect Frequency
+                </h3>
+                <div class="h-64">
+                    <canvas id="defectChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Severity Distribution -->
+            <div class="card-glass rounded-2xl p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fas fa-chart-pie text-purple-400 mr-3"></i>
+                    Severity Distribution
+                </h3>
+                <div class="h-64">
+                    <canvas id="severityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Daily Trend -->
+            <div class="card-glass rounded-2xl p-6 lg:col-span-2">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fas fa-chart-line text-emerald-400 mr-3"></i>
+                    Analysis Trend
+                </h3>
+                <div class="h-64">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch analytics data
+        fetch('/api/analytics')
+            .then(response => response.json())
+            .then(data => {
+                // Update summary cards
+                document.getElementById('totalAnalyses').textContent = data.total_analyses;
+                
+                const totalDefects = Object.values(data.defect_frequency).reduce((a, b) => a + b, 0);
+                document.getElementById('totalDefects').textContent = totalDefects;
+                document.getElementById('criticalCount').textContent = data.severity_distribution.Critical || 0;
+                
+                const mostCommon = Object.entries(data.defect_frequency)
+                    .sort((a, b) => b[1] - a[1])[0];
+                document.getElementById('mostCommon').textContent = mostCommon ? mostCommon[0].replace('_', ' ') : 'N/A';
+
+                // Defect Frequency Chart
+                const defectLabels = Object.keys(data.defect_frequency).map(k => k.replace('_', ' '));
+                const defectValues = Object.values(data.defect_frequency);
+                
+                new Chart(document.getElementById('defectChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: defectLabels,
+                        datasets: [{
+                            label: 'Count',
+                            data: defectValues,
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(139, 92, 246, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(251, 191, 36, 0.7)',
+                                'rgba(239, 68, 68, 0.7)',
+                                'rgba(236, 72, 153, 0.7)'
+                            ],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                        }
+                    }
+                });
+
+                // Severity Distribution Chart
+                new Chart(document.getElementById('severityChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Critical', 'High', 'Medium', 'Low'],
+                        datasets: [{
+                            data: [
+                                data.severity_distribution.Critical,
+                                data.severity_distribution.High,
+                                data.severity_distribution.Medium,
+                                data.severity_distribution.Low
+                            ],
+                            backgroundColor: [
+                                'rgba(239, 68, 68, 0.8)',
+                                'rgba(249, 115, 22, 0.8)',
+                                'rgba(251, 191, 36, 0.8)',
+                                'rgba(16, 185, 129, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: '#9ca3af', padding: 20 }
+                            }
+                        }
+                    }
+                });
+
+                // Daily Trend Chart
+                const sortedDates = Object.keys(data.daily_trend).sort();
+                const trendValues = sortedDates.map(d => data.daily_trend[d]);
+                
+                new Chart(document.getElementById('trendChart'), {
+                    type: 'line',
+                    data: {
+                        labels: sortedDates,
+                        datasets: [{
+                            label: 'Analyses',
+                            data: trendValues,
+                            borderColor: 'rgba(251, 191, 36, 1)',
+                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+</html>

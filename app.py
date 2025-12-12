@@ -1,14 +1,16 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, flash
 import os
-from datetime import datetime
+from datetime import datetime, date
 import sqlite3
 import cv2
 import numpy as np
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from ultralytics import YOLO
 import json
 from fpdf import FPDF
 import io
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'circuitfix_pro_secret_2024'
@@ -56,6 +58,16 @@ def init_db():
     conn.close()
 
 init_db()
+
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please log in to access this page.')
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Repair Knowledge Base
 REPAIR_KNOWLEDGE = {
@@ -287,21 +299,37 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        confirm_password = request.form.get('confirm_password', password)
         email = request.form['email']
+        
+        # Validate password confirmation
+        if password != confirm_password:
+            flash('Passwords do not match. Please try again.')
+            return redirect('/register')
+        
+        # Validate password strength
+        if len(password) < 8:
+            flash('Password must be at least 8 characters long.')
+            return redirect('/register')
+        
+        # Hash the password
+        hashed_password = generate_password_hash(password)
         
         conn = sqlite3.connect('circuitfix.db')
         c = conn.cursor()
         try:
             c.execute("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", 
-                     (username, password, email))
+                     (username, hashed_password, email))
             conn.commit()
             session['user_id'] = c.lastrowid
             session['username'] = username
             conn.close()
+            flash('Account created successfully! Welcome to CircuitFix.')
             return redirect('/dashboard')
         except sqlite3.IntegrityError:
             conn.close()
-            return "Username already exists! <a href='/register'>Try again</a>"
+            flash('Username already exists. Please choose a different username.')
+            return redirect('/register')
     
     return render_template('register.html')
 
@@ -313,12 +341,12 @@ def login():
         
         conn = sqlite3.connect('circuitfix.db')
         c = conn.cursor()
-        c.execute("SELECT id, username FROM users WHERE username = ? AND password = ?", 
-                 (username, password))
+        c.execute("SELECT id, username, password FROM users WHERE username = ?", 
+                 (username,))
         user = c.fetchone()
         conn.close()
         
-        if user:
+        if user and check_password_hash(user[2], password):
             session['user_id'] = user[0]
             session['username'] = user[1]
             return redirect('/dashboard')
@@ -329,15 +357,13 @@ def login():
     return render_template('login.html')
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    if 'user_id' not in session:
-        return redirect('/login')
-    
     # Get user's analysis history
     conn = sqlite3.connect('circuitfix.db')
     c = conn.cursor()
     c.execute('''SELECT id, image_path, defects, created_at 
-                 FROM analyses WHERE user_id = ? ORDER BY created_at DESC LIMIT 5''', 
+                 FROM analyses WHERE user_id = ? ORDER BY created_at DESC LIMIT 10''', 
               (session['user_id'],))
     history = c.fetchall()
     conn.close()
@@ -346,11 +372,64 @@ def dashboard():
                          username=session['username'],
                          history=history)
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+@app.route('/api/stats')
+@login_required
+def get_stats():
+    """Get real statistics for the dashboard"""
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
     
+    # Today's analyses count
+    today = date.today().isoformat()
+    c.execute('''SELECT COUNT(*) FROM analyses 
+                 WHERE user_id = ? AND DATE(created_at) = ?''',
+              (session['user_id'], today))
+    today_count = c.fetchone()[0]
+    
+    # Total analyses
+    c.execute('SELECT COUNT(*) FROM analyses WHERE user_id = ?', 
+              (session['user_id'],))
+    total_analyses = c.fetchone()[0]
+    
+    # Total defects found
+    c.execute('SELECT defects FROM analyses WHERE user_id = ?', 
+              (session['user_id'],))
+    total_defects = 0
+    for row in c.fetchall():
+        try:
+            defects = json.loads(row[0])
+            total_defects += len(defects)
+        except:
+            pass
+    
+    # Success rate (analyses with no critical defects)
+    c.execute('SELECT defects FROM analyses WHERE user_id = ?', 
+              (session['user_id'],))
+    successful = 0
+    for row in c.fetchall():
+        try:
+            defects = json.loads(row[0])
+            has_critical = any(d.get('repair_advice', {}).get('severity') == 'Critical' for d in defects)
+            if not has_critical:
+                successful += 1
+        except:
+            pass
+    
+    success_rate = (successful / total_analyses * 100) if total_analyses > 0 else 100
+    
+    conn.close()
+    
+    return jsonify({
+        'today_count': today_count,
+        'total_analyses': total_analyses,
+        'defects_found': total_defects,
+        'success_rate': round(success_rate, 1),
+        'avg_time': '2.3s'  # Average analysis time (could be tracked in DB)
+    })
+
+@app.route('/analyze', methods=['POST'])
+@login_required
+def analyze():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     
@@ -390,10 +469,8 @@ def analyze():
     return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/report/<int:analysis_id>')
+@login_required
 def download_report(analysis_id):
-    if 'user_id' not in session:
-        return redirect('/login')
-    
     # Get analysis data including image path
     conn = sqlite3.connect('circuitfix.db')
     c = conn.cursor()
@@ -434,7 +511,157 @@ def download_report(analysis_id):
 @app.route('/logout')
 def logout():
     session.clear()
+    flash('You have been logged out successfully.')
     return redirect('/')
+
+@app.route('/analysis/<int:analysis_id>')
+@login_required
+def view_analysis(analysis_id):
+    """View detailed analysis with repair guides"""
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    c.execute('''SELECT id, image_path, defects, created_at 
+                 FROM analyses WHERE id = ? AND user_id = ?''',
+              (analysis_id, session['user_id']))
+    result = c.fetchone()
+    conn.close()
+    
+    if not result:
+        flash('Analysis not found.')
+        return redirect('/dashboard')
+    
+    detections = json.loads(result[2])
+    
+    # Count critical defects
+    critical_count = sum(1 for d in detections 
+                        if d.get('repair_advice', {}).get('severity') == 'Critical')
+    
+    # Get image URLs
+    image_url = f'/static/uploads/{result[1]}'
+    annotated_path = result[1].replace('.jpg', '_annotated.jpg').replace('.png', '_annotated.png')
+    if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], annotated_path)):
+        annotated_image_url = f'/static/uploads/{annotated_path}'
+    else:
+        annotated_image_url = image_url
+    
+    analysis = {
+        'id': result[0],
+        'image_path': result[1],
+        'created_at': result[3]
+    }
+    
+    return render_template('analysis.html',
+                         analysis=analysis,
+                         detections=detections,
+                         critical_count=critical_count,
+                         image_url=image_url,
+                         annotated_image_url=annotated_image_url)
+
+@app.route('/knowledge')
+@login_required
+def knowledge_base():
+    """Searchable knowledge base of all defect types"""
+    return render_template('knowledge.html', defects=REPAIR_KNOWLEDGE)
+
+@app.route('/analytics')
+@login_required
+def analytics_page():
+    """Analytics dashboard with charts"""
+    return render_template('analytics.html')
+
+@app.route('/api/analytics')
+@login_required
+def get_analytics_data():
+    """Get detailed analytics data for charts"""
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    
+    # Get all user's analyses
+    c.execute('SELECT defects, created_at FROM analyses WHERE user_id = ?',
+              (session['user_id'],))
+    analyses = c.fetchall()
+    conn.close()
+    
+    # Defect frequency
+    defect_counts = {}
+    severity_counts = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
+    daily_counts = {}
+    
+    for analysis in analyses:
+        try:
+            defects = json.loads(analysis[0])
+            date_str = analysis[1][:10] if analysis[1] else 'Unknown'
+            daily_counts[date_str] = daily_counts.get(date_str, 0) + 1
+            
+            for defect in defects:
+                defect_type = defect.get('defect', 'Unknown')
+                defect_counts[defect_type] = defect_counts.get(defect_type, 0) + 1
+                
+                severity = defect.get('repair_advice', {}).get('severity', 'Unknown')
+                if severity in severity_counts:
+                    severity_counts[severity] += 1
+        except:
+            pass
+    
+    return jsonify({
+        'defect_frequency': defect_counts,
+        'severity_distribution': severity_counts,
+        'daily_trend': daily_counts,
+        'total_analyses': len(analyses)
+    })
+
+@app.route('/profile')
+@login_required
+def profile_page():
+    """User profile and settings"""
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    c.execute('SELECT username, email, created_at FROM users WHERE id = ?',
+              (session['user_id'],))
+    user = c.fetchone()
+    c.execute('SELECT COUNT(*) FROM analyses WHERE user_id = ?',
+              (session['user_id'],))
+    total_analyses = c.fetchone()[0]
+    conn.close()
+    
+    return render_template('profile.html',
+                         user={'username': user[0], 'email': user[1], 'created_at': user[2]},
+                         total_analyses=total_analyses)
+
+@app.route('/profile/change-password', methods=['POST'])
+@login_required
+def change_password():
+    """Change user password"""
+    current_password = request.form['current_password']
+    new_password = request.form['new_password']
+    confirm_password = request.form['confirm_password']
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match.')
+        return redirect('/profile')
+    
+    if len(new_password) < 8:
+        flash('Password must be at least 8 characters long.')
+        return redirect('/profile')
+    
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    c.execute('SELECT password FROM users WHERE id = ?', (session['user_id'],))
+    stored_password = c.fetchone()[0]
+    
+    if not check_password_hash(stored_password, current_password):
+        conn.close()
+        flash('Current password is incorrect.')
+        return redirect('/profile')
+    
+    new_hash = generate_password_hash(new_password)
+    c.execute('UPDATE users SET password = ? WHERE id = ?',
+              (new_hash, session['user_id']))
+    conn.commit()
+    conn.close()
+    
+    flash('Password changed successfully!')
+    return redirect('/profile')
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
