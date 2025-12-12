@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Discussion | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-glow:focus { box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2); border-color: #fbbf24; }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <a href="/dashboard" class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                            <p class="text-xs text-gray-400">NEW DISCUSSION</p>
+                        </div>
+                    </a>
+                </div>
+                <a href="/forum" class="text-gray-300 hover:text-amber-300 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Forum
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8 max-w-3xl">
+        <div class="card-glass rounded-2xl p-8">
+            <h1 class="text-2xl font-bold mb-6">
+                <i class="fas fa-pen text-amber-400 mr-3"></i>
+                Start a New Discussion
+            </h1>
+
+            <form method="POST" action="/forum/new" class="space-y-6">
+                <div>
+                    <label class="block text-gray-300 mb-2 font-medium">Title</label>
+                    <input type="text" name="title" required
+                           placeholder="What's your question or topic?"
+                           class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none input-glow transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-gray-300 mb-2 font-medium">Category</label>
+                    <select name="category" class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none input-glow transition-colors">
+                        <option value="General">General Discussion</option>
+                        <option value="Soldering">Soldering Techniques</option>
+                        <option value="Diagnostics">Diagnostics & Testing</option>
+                        <option value="Components">Components & Parts</option>
+                        <option value="Tools">Tools & Equipment</option>
+                        <option value="Help">Help & Support</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-300 mb-2 font-medium">Your Message</label>
+                    <textarea name="content" rows="8" required
+                              placeholder="Describe your question or share your knowledge..."
+                              class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none input-glow transition-colors resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <a href="/forum" class="glass-effect border border-gray-600 text-gray-300 px-6 py-3 rounded-xl hover:bg-gray-800/50 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" class="premium-gold text-white px-8 py-3 rounded-xl font-semibold">
+                        <i class="fas fa-paper-plane mr-2"></i>Publish Discussion
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -33,10 +33,18 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-6">
+                        {% if logged_in %}
                         <a href="/dashboard" class="text-gray-300 hover:text-amber-200 transition-colors font-medium">Dashboard</a>
-                        <a href="/login" class="premium-gold text-white px-6 py-2 rounded-lg font-semibold hover-lift shadow-lg">
-                            <i class="fas fa-lock mr-2"></i>Technician Portal
+                        <span class="text-gray-400"><i class="fas fa-user-shield mr-1 text-amber-400"></i>{{ username }}</span>
+                        <a href="/logout" class="glass-effect border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </a>
+                        {% else %}
+                        <a href="/login" class="text-gray-300 hover:text-amber-200 transition-colors font-medium">Login</a>
+                        <a href="/register" class="premium-gold text-white px-6 py-2 rounded-lg font-semibold hover-lift shadow-lg">
+                            <i class="fas fa-rocket mr-2"></i>Get Started
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

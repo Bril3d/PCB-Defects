@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussion Forum | CircuitFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .premium-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <a href="/dashboard" class="flex items-center space-x-3">
+                        <div class="premium-gold p-2 rounded-lg">
+                            <i class="fas fa-microchip text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">CircuitFix</h1>
+                            <p class="text-xs text-gray-400">COMMUNITY FORUM</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                    <a href="/knowledge" class="text-gray-300 hover:text-amber-300 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Knowledge Base
+                    </a>
+                    <a href="/logout" class="glass-effect border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">
+                    <i class="fas fa-comments text-amber-400 mr-3"></i>
+                    PCB Repair Discussion Forum
+                </h1>
+                <p class="text-gray-400">Share knowledge, ask questions, and connect with fellow technicians</p>
+            </div>
+            <a href="/forum/new" class="premium-gold text-white px-6 py-3 rounded-xl font-semibold hover-lift flex items-center">
+                <i class="fas fa-plus mr-2"></i>New Discussion
+            </a>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="flex space-x-3 mb-8">
+            <button class="bg-amber-500/20 text-amber-300 px-4 py-2 rounded-lg text-sm font-medium">All Topics</button>
+            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Soldering</button>
+            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Diagnostics</button>
+            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Components</button>
+            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">General</button>
+        </div>
+
+        <!-- Posts List -->
+        <div class="space-y-4">
+            {% for post in posts %}
+            <a href="/forum/{{ post[0] }}" class="card-glass rounded-xl p-5 flex items-center justify-between hover-lift block">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-message text-amber-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white text-lg mb-1">{{ post[1] }}</h3>
+                        <div class="flex items-center space-x-4 text-sm text-gray-400">
+                            <span><i class="fas fa-user mr-1"></i>{{ post[5] }}</span>
+                            <span><i class="fas fa-folder mr-1"></i>{{ post[2] }}</span>
+                            <span><i class="fas fa-clock mr-1"></i>{{ post[4] }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6 text-sm">
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-blue-400">{{ post[6] }}</div>
+                        <div class="text-gray-500">replies</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-gray-400">{{ post[3] }}</div>
+                        <div class="text-gray-500">views</div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </div>
+            </a>
+            {% else %}
+            <div class="card-glass rounded-xl p-12 text-center">
+                <i class="fas fa-comments text-5xl text-gray-600 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-400 mb-2">No discussions yet</h3>
+                <p class="text-gray-500 mb-6">Be the first to start a conversation!</p>
+                <a href="/forum/new" class="premium-gold text-white px-6 py-3 rounded-xl font-semibold inline-block">
+                    <i class="fas fa-plus mr-2"></i>Start a Discussion
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

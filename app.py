@@ -54,6 +54,23 @@ def init_db():
                   defects TEXT,
                   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY(user_id) REFERENCES users(id))''')
+    c.execute('''CREATE TABLE IF NOT EXISTS forum_posts
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  user_id INTEGER,
+                  title TEXT,
+                  content TEXT,
+                  category TEXT DEFAULT 'General',
+                  views INTEGER DEFAULT 0,
+                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  FOREIGN KEY(user_id) REFERENCES users(id))''')
+    c.execute('''CREATE TABLE IF NOT EXISTS forum_replies
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  post_id INTEGER,
+                  user_id INTEGER,
+                  content TEXT,
+                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  FOREIGN KEY(post_id) REFERENCES forum_posts(id),
+                  FOREIGN KEY(user_id) REFERENCES users(id))''')
     conn.commit()
     conn.close()
 
@@ -292,7 +309,9 @@ def create_pdf_report(analysis_data, username, image_path=None):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', 
+                         logged_in='user_id' in session,
+                         username=session.get('username'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -662,6 +681,105 @@ def change_password():
     
     flash('Password changed successfully!')
     return redirect('/profile')
+
+# ==================== FORUM ROUTES ====================
+
+@app.route('/forum')
+@login_required
+def forum():
+    """Discussion forum main page"""
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    
+    # Get all posts with author info and reply count
+    c.execute('''
+        SELECT fp.id, fp.title, fp.category, fp.views, fp.created_at, 
+               u.username, 
+               (SELECT COUNT(*) FROM forum_replies WHERE post_id = fp.id) as reply_count
+        FROM forum_posts fp
+        JOIN users u ON fp.user_id = u.id
+        ORDER BY fp.created_at DESC
+    ''')
+    posts = c.fetchall()
+    conn.close()
+    
+    return render_template('forum.html', posts=posts)
+
+@app.route('/forum/new', methods=['GET', 'POST'])
+@login_required
+def new_post():
+    """Create new forum post"""
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        category = request.form.get('category', 'General')
+        
+        conn = sqlite3.connect('circuitfix.db')
+        c = conn.cursor()
+        c.execute('INSERT INTO forum_posts (user_id, title, content, category) VALUES (?, ?, ?, ?)',
+                 (session['user_id'], title, content, category))
+        post_id = c.lastrowid
+        conn.commit()
+        conn.close()
+        
+        flash('Your post has been published!')
+        return redirect(f'/forum/{post_id}')
+    
+    return render_template('forum_new.html')
+
+@app.route('/forum/<int:post_id>')
+@login_required
+def view_post(post_id):
+    """View single forum post with replies"""
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    
+    # Increment view count
+    c.execute('UPDATE forum_posts SET views = views + 1 WHERE id = ?', (post_id,))
+    conn.commit()
+    
+    # Get post with author
+    c.execute('''
+        SELECT fp.id, fp.title, fp.content, fp.category, fp.views, fp.created_at, u.username
+        FROM forum_posts fp
+        JOIN users u ON fp.user_id = u.id
+        WHERE fp.id = ?
+    ''', (post_id,))
+    post = c.fetchone()
+    
+    if not post:
+        conn.close()
+        flash('Post not found.')
+        return redirect('/forum')
+    
+    # Get replies
+    c.execute('''
+        SELECT fr.id, fr.content, fr.created_at, u.username
+        FROM forum_replies fr
+        JOIN users u ON fr.user_id = u.id
+        WHERE fr.post_id = ?
+        ORDER BY fr.created_at ASC
+    ''', (post_id,))
+    replies = c.fetchall()
+    conn.close()
+    
+    return render_template('forum_thread.html', post=post, replies=replies)
+
+@app.route('/forum/<int:post_id>/reply', methods=['POST'])
+@login_required
+def reply_post(post_id):
+    """Add reply to forum post"""
+    content = request.form['content']
+    
+    conn = sqlite3.connect('circuitfix.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO forum_replies (post_id, user_id, content) VALUES (?, ?, ?)',
+             (post_id, session['user_id'], content))
+    conn.commit()
+    conn.close()
+    
+    flash('Your reply has been posted!')
+    return redirect(f'/forum/{post_id}')
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
