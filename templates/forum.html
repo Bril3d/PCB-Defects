@@ -64,18 +64,20 @@
         </div>
 
         <!-- Category Filters -->
-        <div class="flex space-x-3 mb-8">
-            <button class="bg-amber-500/20 text-amber-300 px-4 py-2 rounded-lg text-sm font-medium">All Topics</button>
-            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Soldering</button>
-            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Diagnostics</button>
-            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Components</button>
-            <button class="glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">General</button>
+        <div class="flex flex-wrap gap-3 mb-8" id="categoryFilters">
+            <button onclick="filterPosts('all')" data-filter="all" class="filter-btn active bg-amber-500/20 text-amber-300 px-4 py-2 rounded-lg text-sm font-medium">All Topics</button>
+            <button onclick="filterPosts('Soldering')" data-filter="Soldering" class="filter-btn glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Soldering</button>
+            <button onclick="filterPosts('Diagnostics')" data-filter="Diagnostics" class="filter-btn glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Diagnostics</button>
+            <button onclick="filterPosts('Components')" data-filter="Components" class="filter-btn glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Components</button>
+            <button onclick="filterPosts('Tools')" data-filter="Tools" class="filter-btn glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Tools</button>
+            <button onclick="filterPosts('Help')" data-filter="Help" class="filter-btn glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">Help</button>
+            <button onclick="filterPosts('General')" data-filter="General" class="filter-btn glass-effect text-gray-400 px-4 py-2 rounded-lg text-sm hover:text-white transition-colors">General</button>
         </div>
 
         <!-- Posts List -->
-        <div class="space-y-4">
+        <div class="space-y-4" id="postsList">
             {% for post in posts %}
-            <a href="/forum/{{ post[0] }}" class="card-glass rounded-xl p-5 flex items-center justify-between hover-lift block">
+            <a href="/forum/{{ post[0] }}" class="post-item card-glass rounded-xl p-5 flex items-center justify-between hover-lift block" data-category="{{ post[2] }}">
                 <div class="flex items-start space-x-4">
                     <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-message text-amber-400"></i>
@@ -84,7 +86,7 @@
                         <h3 class="font-semibold text-white text-lg mb-1">{{ post[1] }}</h3>
                         <div class="flex items-center space-x-4 text-sm text-gray-400">
                             <span><i class="fas fa-user mr-1"></i>{{ post[5] }}</span>
-                            <span><i class="fas fa-folder mr-1"></i>{{ post[2] }}</span>
+                            <span class="category-tag"><i class="fas fa-folder mr-1"></i>{{ post[2] }}</span>
                             <span><i class="fas fa-clock mr-1"></i>{{ post[4] }}</span>
                         </div>
                     </div>
@@ -102,7 +104,7 @@
                 </div>
             </a>
             {% else %}
-            <div class="card-glass rounded-xl p-12 text-center">
+            <div class="card-glass rounded-xl p-12 text-center" id="emptyState">
                 <i class="fas fa-comments text-5xl text-gray-600 mb-4"></i>
                 <h3 class="text-xl font-semibold text-gray-400 mb-2">No discussions yet</h3>
                 <p class="text-gray-500 mb-6">Be the first to start a conversation!</p>
@@ -112,6 +114,50 @@
             </div>
             {% endfor %}
         </div>
+        
+        <!-- No Results Message (hidden by default) -->
+        <div id="noResults" class="card-glass rounded-xl p-12 text-center hidden">
+            <i class="fas fa-search text-5xl text-gray-600 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-400 mb-2">No posts in this category</h3>
+            <p class="text-gray-500">Try selecting a different category or start a new discussion.</p>
+        </div>
     </div>
+
+    <script>
+        function filterPosts(category) {
+            const posts = document.querySelectorAll('.post-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+            
+            // Update button styles
+            buttons.forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.classList.remove('glass-effect', 'text-gray-400');
+                    btn.classList.add('bg-amber-500/20', 'text-amber-300', 'active');
+                } else {
+                    btn.classList.add('glass-effect', 'text-gray-400');
+                    btn.classList.remove('bg-amber-500/20', 'text-amber-300', 'active');
+                }
+            });
+            
+            // Filter posts
+            posts.forEach(post => {
+                if (category === 'all' || post.dataset.category === category) {
+                    post.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            if (visibleCount === 0 && posts.length > 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
