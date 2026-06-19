@@ -4,6 +4,12 @@ CircuitFix is an intelligent web application that uses **YOLOv8/YOLOv11** deep l
 
 ---
 
+## 🎬 Demo
+
+Watch the app in action in this short Loom walkthrough: [CircuitFix demo video](https://www.loom.com/share/fd5c2f2a932e4fa1979d942569bc34ad)
+
+---
+
 ## ✨ Key Features
 
 ### 🤖 AI-Powered Defect Detection
